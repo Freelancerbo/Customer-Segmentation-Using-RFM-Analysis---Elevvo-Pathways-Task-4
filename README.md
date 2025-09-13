@@ -30,26 +30,8 @@ Matplotlib / Plotly – for visualizations
 
 Pandas & NumPy – for data manipulation
 
-⚡ How to Run
-
-Clone this repository:
-
-git clone https://github.com/your-username/sales-dashboard.git
-cd sales-dashboard
-
-
-Install dependencies:
-
-pip install -r requirements.txt
-
-
-Launch the app:
-
-streamlit run app.py
 
 🌟 Preview
-
-The dashboard provides:
 
 📈 Sales trend analysis over time
 
