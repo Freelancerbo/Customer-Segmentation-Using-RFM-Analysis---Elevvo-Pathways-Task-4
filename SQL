@@ -1,0 +1,66 @@
+-- 1. Create table for sales data
+CREATE TABLE sales (
+    InvoiceNo VARCHAR(20),
+    CustomerID INT,
+    InvoiceDate DATE,
+    Quantity INT,
+    UnitPrice DECIMAL(10,2),
+    Store VARCHAR(50),
+    Product VARCHAR(50)
+);
+
+-- 2. Insert sample data (for demo)
+INSERT INTO sales (InvoiceNo, CustomerID, InvoiceDate, Quantity, UnitPrice, Store, Product) VALUES
+('INV001', 101, '2023-01-15', 3, 200.00, 'Store A', 'Electronics'),
+('INV002', 102, '2023-01-18', 5, 50.00, 'Store B', 'Clothing'),
+('INV003', 101, '2023-02-01', 2, 500.00, 'Store A', 'Electronics'),
+('INV004', 103, '2023-02-12', 1, 1000.00, 'Store C', 'Groceries'),
+('INV005', 104, '2023-03-05', 4, 150.00, 'Store B', 'Clothing');
+
+-- 3. Calculate total price (Monetary value)
+SELECT
+    InvoiceNo,
+    CustomerID,
+    InvoiceDate,
+    Quantity * UnitPrice AS TotalPrice
+FROM sales;
+
+-- 4. RFM Analysis
+-- Recency: Days since last purchase
+-- Frequency: Count of purchases
+-- Monetary: Total spent
+
+WITH rfm AS (
+    SELECT
+        CustomerID,
+        MAX(InvoiceDate) AS LastPurchaseDate,
+        COUNT(DISTINCT InvoiceNo) AS Frequency,
+        SUM(Quantity * UnitPrice) AS Monetary
+    FROM sales
+    GROUP BY CustomerID
+)
+SELECT
+    CustomerID,
+    DATEDIFF(DAY, MAX(InvoiceDate), GETDATE()) AS Recency,
+    Frequency,
+    Monetary
+FROM rfm;
+
+-- 5. Customer Segmentation Example
+SELECT
+    CustomerID,
+    CASE
+        WHEN Monetary > 1000 AND Frequency > 3 THEN 'Champions'
+        WHEN Monetary BETWEEN 500 AND 1000 THEN 'Loyal Customers'
+        WHEN Recency > 90 THEN 'At Risk'
+        ELSE 'Others'
+    END AS Segment
+FROM (
+    SELECT
+        CustomerID,
+        DATEDIFF(DAY, MAX(InvoiceDate), GETDATE()) AS Recency,
+        COUNT(DISTINCT InvoiceNo) AS Frequency,
+        SUM(Quantity * UnitPrice) AS Monetary
+    FROM sales
+    GROUP BY CustomerID
+) t;
